@@ -7,7 +7,8 @@ function jprint($object)
 }
 
 function field($name){
-	$fields = array_combine(explode(",", $_POST['f']),range(0,count($_POST['f'])));
+	$f = explode(",", $_POST['f']);
+	$fields = array_combine($f,range(0,count($f)-1));
 	return $_POST[(string)$fields[$name]];
 }
 

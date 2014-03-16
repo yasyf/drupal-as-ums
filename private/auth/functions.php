@@ -43,4 +43,9 @@ function verifySignature()
 	}
 }
 
+function fetch_fields($user){
+	$fields = explode(",",field('fields'));
+	return array_intersect_key((array)$user, array_flip($fields));
+}
+
 ?>

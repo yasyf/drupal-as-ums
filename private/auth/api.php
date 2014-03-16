@@ -1,6 +1,6 @@
 <?php
 require_once 'functions.php';
-//verifySignature();
+verifySignature();
 
 define('DRUPAL_ROOT', $_SERVER['DOCUMENT_ROOT']);
 $base_url = 'http://'.$_SERVER['HTTP_HOST'];

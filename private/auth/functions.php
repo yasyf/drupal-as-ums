@@ -33,11 +33,11 @@ function verifySignature()
 		jerror('missing parameter');
 	}
 
-	if((time() - int($time)) < 60){
-		jerror('expired signature');
+	if(abs(time() - intval($time)) < 60){
+		jerror('expired signature:');
 	}
 
-	$check = sha1(sha1($time.$action.$fields)."sdf#$Ih2MKLS!");
+	$check = generate_hash($time, $action, $fields);
 	if($signature != $check){
 		jerror('invalid signature');
 	}
@@ -46,6 +46,10 @@ function verifySignature()
 function fetch_fields($user){
 	$fields = explode(",",field('fields'));
 	return array_intersect_key((array)$user, array_flip($fields));
+}
+
+function generate_hash($time, $action, $fields){
+	return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!');
 }
 
 ?>

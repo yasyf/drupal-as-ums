@@ -33,7 +33,7 @@ function verifySignature()
 		jerror('missing parameter');
 	}
 
-	if(abs(time() - intval($time)) < 60){
+	if(abs(time() - intval($time)) > 60){
 		jerror('expired signature:');
 	}
 

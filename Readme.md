@@ -73,14 +73,14 @@ function make_api_call($action, $field_list, $values) {
 ?>
 ```
 
-A single example API call in PHP is below.  The rest of the examples will be command-line `cURL`.
+A single example API call in PHP is below.  The rest of the examples will also be in command-line `cURL`.
 
 ```php
 
 <?php
 //Sample API call to check if user exists
 
-$result = make_api_call('check', 'username, password', array('YasyfM', 'my_password'));
+$result = make_api_call('check', 'username,password', array('YasyfM', 'my_password'));
 
 if($result['status'] == 'error') {
 	echo "This user does not exist."
@@ -99,11 +99,34 @@ $ curl -X POST -d "a=check&f=username,password&0=Test123&1=my_password" "http://
 {"status":"error","message":"invalid user"}
 ```
 
+```php
+<?php
+$result = make_api_call('check', 'username,password', array('Test123', 'my_password'));
+print_r($result);
+?>
+stdClass Object
+(
+    [status] => error
+    [message] => invalid user
+)
+```
+
 Following this, you will have already created the new user on your end, so all that is left to do before continuing on as normal is making a request to `create` so as to let Drupal know about the new account. This API call requires the `username` and `password` fields, with `email` and `photo_url` being optional.
 
 ```bash
 $ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,my_password" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211"}
+```
+
+```php
+<?php
+$result = make_api_call('create', 'fields,values', array('username,password', 'YasyfM,my_password'));
+print_r($result);
+?>
+stdClass Object
+(
+    [uid] => 211
+)
 ```
 
 ###Case 2: Existing User Login
@@ -115,6 +138,17 @@ $ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=my_password" "http://s
 {"uid":"211"}
 ```
 
+```php
+<?php
+$result = make_api_call('check', 'username,password', array('YasyfM', 'my_password'));
+print_r($result);
+?>
+stdClass Object
+(
+    [uid] => 211
+)
+```
+
 Following this, you need to create the user on your end if it doesn't already exist, and update the data on your end if it does already exist. Either way, you will need to make a call to `fetch` to get the lastest information from Drupal. This API call requires that you pass the `username` and `uid` parameters, as well as a list of fields to retrieve, as the `fields` parameter.
 
 ```bash
@@ -122,13 +156,36 @@ $ curl -X POST -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid,signature"
 {"uid":"211", "signature": "test"}
 ```
 
-###Case 3: Field Updated
+```php
+<?php
+$result = make_api_call('fetch', 'username,uid,fields', array('YasyfM', '211', 'uid,signature'));
+print_r($result);
+?>
+stdClass Object
+(
+    [uid] => 211
+    [signature] => test
+)
+```
+
+###Case 3: Settings Updated
 
 In this case, the user has already been logged in, and they have changed one of the settings that should be synced back to the Drupal database. All this requires is a call to `set`, with the `username` and `uid` parameters, as well as a list of fields and their respective values to set, as the `fields` and `values` parameters.
 
 ```bash
 $ curl -X POST -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test2" "http://stopfortheone.org/private/auth/api.php"
 {"signature": "test2"}
+```
+
+```php
+<?php
+$result = make_api_call('set', 'username,uid,fields,values', array('YasyfM', '211', 'signature', 'test2'));
+print_r($result);
+?>
+stdClass Object
+(
+    [signature] => test2
+)
 ```
 
 ##Login Handling
@@ -140,6 +197,18 @@ The site should present a username and password field. When a user enters creden
 ```bash
 $ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=bad_pass" "http://stopfortheone.org/private/auth/api.php"
 {"status":"error","message":"invalid credentials"}
+```
+
+```php
+<?php
+$result = make_api_call('check', 'username,password', array('YasyfM', 'bad_pass'));
+print_r($result);
+?>
+stdClass Object
+(
+    [status] => error
+    [message] => invalid credentials
+)
 ```
 
 ###Facebook

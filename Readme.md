@@ -33,21 +33,60 @@ The following is an example of how to generate these authentication parameters.
 
 There are three main cases when using this system, which will be covered below. I will then explore all the possibilities with both traditional and Facebook logins, and map them to one of the two login cases.
 
-Each case will be documented with step-by-step instructions on how to proceed. Example code is with command-line cURL for the sake of portability, but you probably want to implement it in whatever language the backend is in (eg. PHP's [curl_exec](http://www.php.net/manual/en/curl.examples-basic.php)).
+Each case will be documented with step-by-step instructions on how to proceed. Example code is with command-line `cURL` for the sake of portability, but you probably want to implement it in whatever language the backend is in (eg. PHP's [`curl_exec`](http://www.php.net/manual/en/curl.examples-basic.php)).
+
+A single example API call in PHP is below. The rest of the examples will be command-line `cURL`.
+
+```php
+<?php
+//Sample API call to check if user exists
+$endpoint = 'http://stopfortheone.org/private/auth/api.php';
+$time = time();
+$fields = array(
+			'a' => 'check',
+			'f' => 'user,password',
+			'0' => urlencode('YasyfM'),
+			'1' => urlencode('my_password')
+		);
+$fields['s'] = generate_hash($time, $fields['a'], $fields['f']);
+$fields['t'] = $time;
+
+$fields_string = '';
+foreach($fields as $key => $value) {
+	$fields_string .= $key.'=' . $value . '&';
+}
+rtrim($fields_string, '&');
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $endpoint);
+curl_setopt($ch, CURLOPT_POST, count($fields));
+curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+
+$result = json_decode(curl_exec($ch));
+
+curl_close($ch);
+
+if($result['status'] == 'error') {
+	echo "This user does not exist."
+} else {
+	echo "This user exists, and has a uid of " . $result['uid'];
+}
+?>
+```
 
 ###Case 1: New User Login
 
 In this case, a user has logged into the site, and does **not** exist in the Drupal database. This is determined by making a request to `check`, and receiving the `invalid user` response.
 
 ```bash
-$ curl -X POST -d "a=check&f=username,password&0=Test123&1=123456" "http://stopfortheone.org/private/auth/api.php"
+$ curl -X POST -d "a=check&f=username,password&0=Test123&1=my_password" "http://stopfortheone.org/private/auth/api.php"
 {"status":"error","message":"invalid user"}
 ```
 
 Following this, you will have already created the new user on your end, so all that is left to do before continuing on as normal is making a request to `create` so as to let Drupal know about the new account. This API call requires the `username` and `password` fields, with `email` and `photo_url` being optional.
 
 ```bash
-$ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456" "http://stopfortheone.org/private/auth/api.php"
+$ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,my_password" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211"}
 ```
 
@@ -56,7 +95,7 @@ $ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456"
 In this case, a user has logged into the site, and **does** exist in the Drupal database. This is determined by making a request to `check`, and receiving the `uid` response.
 
 ```bash
-$ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=123456" "http://stopfortheone.org/private/auth/api.php"
+$ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=my_password" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211"}
 ```
 

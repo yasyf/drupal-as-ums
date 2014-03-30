@@ -2,7 +2,7 @@
 
 ##Authentication
 
-All of the examples requests below, and indeed all requests made to this API require two authentication parameters. All requests should be POST requests.
+All of the examples requests below, and indeed all requests made to this API, require two authentication parameters. All requests should be POST requests.
 
 1. `t` is the current UNIX timestamp
 2. `s` is the request signature, generated from the `t` parameter, the action of the request, the fields included, and a secret
@@ -34,15 +34,13 @@ In this case, a user has logged into the site, and does **not** exist in the Dru
 ```bash
 $ curl -X POST -d "a=check&f=username,password&0=Test123&1=123456" "http://stopfortheone.org/private/auth/api.php"
 {"status":"error","message":"invalid user"}
-$ 
 ```
 
 Following this, you will have already created the new user on your end, so all that is left to do before continuing on as normal is making a request to `create` so as to let Drupal know about the new account. This API call requires the `username` and `password` fields, with `email` and `photo_url` being optional.
 
 ```bash
-$ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456 "http://stopfortheone.org/private/auth/api.php"
+$ curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211"}
-$ 
 ```
 
 ###Case 2: Existing User Login
@@ -52,7 +50,6 @@ In this case, a user has logged into the site, and **does** exist in the Drupal 
 ```bash
 $ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=123456" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211"}
-$ 
 ```
 
 Following this, you need to create the user on your end if it doesn't already exist, and update the data on your end if it does already exist. Either way, you will need to make a call to `fetch` to get the lastest information from Drupal. This API call requires that you pass the `username` and `uid` parameters, as well as a list of fields to retrieve, as the `fields` parameter.
@@ -60,7 +57,6 @@ Following this, you need to create the user on your end if it doesn't already ex
 ```bash
 $ curl -X POST -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid,signature" "http://stopfortheone.org/private/auth/api.php"
 {"uid":"211", "signature": "test"}
-$ 
 ```
 
 ###Case 3: Field Updated
@@ -70,7 +66,6 @@ In this case, the user has already been logged in, and they have changed one of 
 ```bash
 $ curl -X POST -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test2" "http://stopfortheone.org/private/auth/api.php"
 {"signature": "test2"}
-$ 
 ```
 
 ##Login Handling
@@ -82,7 +77,6 @@ The site should present a username and password field. When a user enters creden
 ```bash
 $ curl -X POST -d "a=check&f=username,password&0=YasyfM&1=bad_pass" "http://stopfortheone.org/private/auth/api.php"
 {"status":"error","message":"invalid credentials"}
-$ 
 ```
 
 ###Facebook
@@ -91,5 +85,5 @@ When a user logs in through Facebook, protocol for `Case 1` or `Case 2` should s
 
 1. For new users, calls to `create` should omit the `password` parameter, as one will be randomly generated
 2. When making API calls, the user's email address should be used as the `username` parameter
-3. Calls to `check` should use anything for the `password` parameter (see **4.**)
-4. The response of `check` will be `invalid credentials` if the the user exists, and `invalid user` if it does not
+3. Calls to `check` should use anything for the `password` parameter (see **4**)
+4. Response of `check` is `invalid credentials` if the the user exists, and `invalid user` if it does not

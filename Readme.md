@@ -19,8 +19,8 @@ The following is an example of how to generate these authentication parameters.
 
 ```php
 <?php
-	function generate_hash($time, $action, $fields) {
-		return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!'); //'sdf#$Ih2MKLS!' is the secret
+	function generate_hash($time, $action, $fields, $secret='sdf#$Ih2MKLS!'){
+		return sha1(sha1($time.$action.$fields).$secret);
 	}
 	$time = time();
 	$action = 'check';

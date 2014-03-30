@@ -48,8 +48,40 @@ function fetch_fields($user){
 	return array_intersect_key((array)$user, array_flip($fields));
 }
 
-function generate_hash($time, $action, $fields){
-	return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!');
+function generate_hash($time, $action, $fields, $secret='sdf#$Ih2MKLS!'){
+	return sha1(sha1($time.$action.$fields).$secret);
+}
+
+function make_api_call($action, $field_list, $values) {
+	$endpoint = 'http://stopfortheone.org/private/auth/api.php';
+	$time = time();
+	$fields = array(
+				'a' => $action,
+				'f' => $field_list
+			);
+	$fields['s'] = generate_hash($time, $fields['a'], $fields['f']);
+	$fields['t'] = $time;
+
+	foreach ($values as $i => $value) {
+		$fields[(string)$i] = urlencode($value);
+	}
+
+	$fields_string = '';
+	foreach($fields as $key => $value) {
+		$fields_string .= $key.'=' . $value . '&';
+	}
+	rtrim($fields_string, '&');
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $endpoint);
+	curl_setopt($ch, CURLOPT_POST, count($fields));
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+
+	$result = json_decode(curl_exec($ch));
+
+	curl_close($ch);
+
+	return $result;
 }
 
 ?>

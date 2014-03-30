@@ -19,7 +19,7 @@ The following is an example of how to generate these authentication parameters.
 
 ```php
 <?php
-	function generate_hash($time, $action, $fields){
+	function generate_hash($time, $action, $fields) {
 		return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!'); //'sdf#$Ih2MKLS!' is the secret
 	}
 	$time = time();
@@ -35,36 +35,52 @@ There are three main cases when using this system, which will be covered below. 
 
 Each case will be documented with step-by-step instructions on how to proceed. Example code is with command-line `cURL` for the sake of portability, but you probably want to implement it in whatever language the backend is in (eg. PHP's [`curl_exec`](http://www.php.net/manual/en/curl.examples-basic.php)).
 
-A single example API call in PHP is below. The rest of the examples will be command-line `cURL`.
+I have created a reusable function that you can use to make any arbitrary API call.
 
 ```php
 <?php
-//Sample API call to check if user exists
-$endpoint = 'http://stopfortheone.org/private/auth/api.php';
-$time = time();
-$fields = array(
-			'a' => 'check',
-			'f' => 'user,password',
-			'0' => urlencode('YasyfM'),
-			'1' => urlencode('my_password')
-		);
-$fields['s'] = generate_hash($time, $fields['a'], $fields['f']);
-$fields['t'] = $time;
+function make_api_call($action, $field_list, $values) {
+	$endpoint = 'http://stopfortheone.org/private/auth/api.php';
+	$time = time();
+	$fields = array(
+				'a' => $action,
+				'f' => $field_list
+			);
+	$fields['s'] = generate_hash($time, $fields['a'], $fields['f']);
+	$fields['t'] = $time;
 
-$fields_string = '';
-foreach($fields as $key => $value) {
-	$fields_string .= $key.'=' . $value . '&';
+	foreach ($values as $i => $value) {
+		$fields[(string)$i] = urlencode($value);
+	}
+
+	$fields_string = '';
+	foreach($fields as $key => $value) {
+		$fields_string .= $key.'=' . $value . '&';
+	}
+	rtrim($fields_string, '&');
+
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $endpoint);
+	curl_setopt($ch, CURLOPT_POST, count($fields));
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+
+	$result = json_decode(curl_exec($ch));
+
+	curl_close($ch);
+
+	return $result;
 }
-rtrim($fields_string, '&');
+?>
+```
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $endpoint);
-curl_setopt($ch, CURLOPT_POST, count($fields));
-curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+A single example API call in PHP is below.  The rest of the examples will be command-line `cURL`.
 
-$result = json_decode(curl_exec($ch));
+```php
 
-curl_close($ch);
+<?php
+//Sample API call to check if user exists
+
+$result = make_api_call('check', 'username, password', array('YasyfM', 'my_password'));
 
 if($result['status'] == 'error') {
 	echo "This user does not exist."

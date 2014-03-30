@@ -10,7 +10,7 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 $action = $_POST['a'];
 
 if($action == 'email_to_username'){
-	// curl -d "a=email_to_username&f=email&0=yasyfm@gmail.com" "http://stopfortheone.org/private/auth/api.php"
+	// curl -X POST -d "a=email_to_username&f=email&0=yasyfm@gmail.com" "http://stopfortheone.org/private/auth/api.php"
 	$user = user_load_by_mail(field('email'));
 	if(!$user){
 		jerror('invalid user');
@@ -20,12 +20,19 @@ if($action == 'email_to_username'){
 	}
 }
 elseif($action == 'check'){
-	// curl -d "a=check&f=username,password&0=YasyfM&1=123456" "http://stopfortheone.org/private/auth/api.php"
-	if(!user_load_by_name(field('username'))){
+	// curl -X POST -d "a=check&f=username,password&0=YasyfM&1=123456" "http://stopfortheone.org/private/auth/api.php"
+	$email_user = user_load_by_mail(field('username'));
+	if ($email_user) {
+		$username = $email_user->name;
+	}
+	else{
+		$username = field('username');
+	}
+	if(!user_load_by_name($username)){
 		jerror('invalid user');
 	}
 	else{
-		$uid = user_authenticate(field('username'), field('password'));
+		$uid = user_authenticate($username, field('password'));
 		if($uid != false){
 			jprint(array('uid' => $uid));
 		}else{
@@ -34,7 +41,7 @@ elseif($action == 'check'){
 	}
 }
 elseif ($action == 'fetch') {
-	// curl -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid" "http://stopfortheone.org/private/auth/api.php"
+	// curl -X POST -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid" "http://stopfortheone.org/private/auth/api.php"
 
 	$username = field('username');
 	$uid = field('uid');
@@ -50,7 +57,7 @@ elseif ($action == 'fetch') {
 	}
 }
 elseif ($action == 'set') {
-	// curl -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test" "http://stopfortheone.org/private/auth/api.php"
+	// curl -X POST -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test" "http://stopfortheone.org/private/auth/api.php"
 
 	$username = field('username');
 	$uid = field('uid');
@@ -73,7 +80,7 @@ elseif ($action == 'set') {
 	}
 }
 elseif ($action == 'create') {
-	// curl -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456 "http://stopfortheone.org/private/auth/api.php"
+	// curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456 "http://stopfortheone.org/private/auth/api.php"
 
 	$username = field('username');
 	$user = user_load_by_name($username);

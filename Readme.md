@@ -1,8 +1,16 @@
 #SFTO User Syncing (Drupal as UMS)
 
+All requests should be POST requests. Each request can have the following parameters, plus the authentication parameters described below.
+
+1. `a` is the action, one of `check`, `fetch`, `set`, or `create`
+2. `f` are the comma-separated fields of the remaining numbered parameters
+3. `0`, `1`, etc. are the zero-indexed list of values associated with the fields listed in `f`
+
+Each call is demonstrated below for further clarification.
+
 ##Authentication
 
-All of the examples requests below, and indeed all requests made to this API, require two authentication parameters. All requests should be POST requests.
+All of the examples requests below, and indeed all requests made to this API, require two authentication parameters. These authentication parameters are not included in the sample code, but should be in any real requests.
 
 1. `t` is the current UNIX timestamp
 2. `s` is the request signature, generated from the `t` parameter, the action of the request, the fields included, and a secret
@@ -12,12 +20,12 @@ The following is an example of how to generate these authentication parameters.
 ```php
 <?php
 	function generate_hash($time, $action, $fields){
-		return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!'); //'sdf#$Ih2MKLS!' is secret
+		return sha1(sha1($time.$action.$fields).'sdf#$Ih2MKLS!'); //'sdf#$Ih2MKLS!' is the secret
 	}
 	$time = time();
 	$action = 'check';
 	$fields = 'username,password';
-	echo "&t=$time&s=".generate_hash($t, $action, $fields);
+	echo '&t='.$time.'&s='.generate_hash($t, $action, $fields);
 ?>
 ```
 

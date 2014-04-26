@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require_once 'functions.php';
 verifySignature();
 
@@ -110,6 +111,6 @@ elseif ($action == 'create') {
 	}
 }
 else{
-	jerror('invalid action');
+	jerror('invalid action '.$action);
 }
 ?>

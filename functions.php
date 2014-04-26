@@ -2,7 +2,9 @@
 
 function jprint($object)
 {
+	ob_end_clean();
 	print json_encode($object);
+	ob_start();
 	die();
 }
 
@@ -48,7 +50,7 @@ function fetch_fields($user){
 	return array_intersect_key((array)$user, array_flip($fields));
 }
 
-function generate_hash($time, $action, $fields, $secret='sdf#$Ih2MKLS!'){
+function generate_hash($time, $action, $fields, $secret='SECRET'){
 	return sha1(sha1($time.$action.$fields).$secret);
 }
 

@@ -1,5 +1,15 @@
 <?php
 
+function drupal_external_load($drupal_url) {
+  global $base_url;
+  $base_url = $drupal_url;
+  $current_path = getcwd();
+  chdir(DRUPAL_ROOT);
+  require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+  chdir($current_path);
+}
+
 function jprint($object)
 {
 	ob_end_clean();
@@ -50,7 +60,7 @@ function fetch_fields($user){
 	return array_intersect_key((array)$user, array_flip($fields));
 }
 
-function generate_hash($time, $action, $fields, $secret='SECRET'){
+function generate_hash($time, $action, $fields, $secret=SECRET){
 	return sha1(sha1($time.$action.$fields).$secret);
 }
 

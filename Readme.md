@@ -60,6 +60,7 @@ function make_api_call($action, $field_list, $values) {
 	rtrim($fields_string, '&');
 
 	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_URL, $endpoint);
 	curl_setopt($ch, CURLOPT_POST, count($fields));
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);

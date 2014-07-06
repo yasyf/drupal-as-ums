@@ -46,7 +46,7 @@ function verifySignature()
   }
 
   if(abs(time() - intval($time)) > 60){
-    jerror('expired signature:');
+    jerror('expired signature');
   }
 
   $check = generate_hash($time, $action, $fields);
@@ -65,7 +65,7 @@ function generate_hash($time, $action, $fields, $secret=SECRET){
 }
 
 function make_api_call($action, $field_list, $values) {
-  $endpoint = 'http://stopfortheone.org/private/auth/api.php';
+  $endpoint = ENDPOINT;
   $time = time();
   $fields = array(
         'a' => $action,

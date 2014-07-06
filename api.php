@@ -12,7 +12,7 @@ $action = $_POST['a'];
 try {
 
   if($action == 'email_to_username'){
-    // curl -X POST -d "a=email_to_username&f=email&0=yasyfm@gmail.com" "http://stopfortheone.org/private/auth/api.php"
+    // curl -X POST -d "a=email_to_username&f=email&0=yasyfm@gmail.com" ENDPOINT
 
     $user = user_load_by_mail(field('email'));
     if(!$user){
@@ -23,7 +23,7 @@ try {
     }
   }
   elseif($action == 'check'){
-    // curl -X POST -d "a=check&f=username,password&0=YasyfM&1=123456" "http://stopfortheone.org/private/auth/api.php"
+    // curl -X POST -d "a=check&f=username,password&0=YasyfM&1=123456" ENDPOINT
 
     $email_user = user_load_by_mail(field('username'));
     if ($email_user) {
@@ -45,7 +45,7 @@ try {
     }
   }
   elseif ($action == 'fetch') {
-    // curl -X POST -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid" "http://stopfortheone.org/private/auth/api.php"
+    // curl -X POST -d "a=fetch&f=username,uid,fields&0=YasyfM&1=211&2=uid" ENDPOINT
 
     $username = field('username');
     $uid = field('uid');
@@ -61,7 +61,7 @@ try {
     }
   }
   elseif ($action == 'set') {
-    // curl -X POST -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test" "http://stopfortheone.org/private/auth/api.php"
+    // curl -X POST -d "a=set&f=username,uid,fields,values&0=YasyfM&1=211&2=signature&3=test" ENDPOINT
 
     $username = field('username');
     $uid = field('uid');
@@ -84,7 +84,7 @@ try {
     }
   }
   elseif ($action == 'create') {
-    // curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456 "http://stopfortheone.org/private/auth/api.php"
+    // curl -X POST -d "a=create&f=fields,values&0=username,password&1=YasyfM,123456 ENDPOINT
 
     $fields = explode(",",field('fields'));
     $values = explode(",",field('values'));
